@@ -12,7 +12,7 @@ public class CategoryManager {
     private Connection connection = DBConnectionProvider.getInstance().getConnection();
     public void add(Category category) {
         String sql = "INSERT INTO category(name) VALUES(?)";
-        try(PreparedStatement ps = connection.prepareStatement(String.format(sql), Statement.RETURN_GENERATED_KEYS)) {
+        try(PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, category.getName());
             ps.executeUpdate();
             ResultSet generatedKeys = ps.getGeneratedKeys();
@@ -24,9 +24,11 @@ public class CategoryManager {
         }
     }
     public  void editCategory(Category category) {
-        String sql = "UPDATE category SET name = '%s' WHERE id = %d";
-        try(Statement statement = connection.createStatement()) {
-            statement.executeUpdate(String.format(sql, category.getName(), category.getId()));
+        String sql = "UPDATE category SET name = ? WHERE id = ?";
+        try(PreparedStatement ps = connection.prepareCall(sql)) {
+            ps.setString(1, category.getName());
+            ps.setInt(2,category.getId());
+          ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -42,8 +44,9 @@ public class CategoryManager {
 
     public List<Category> getAll() {
         List<Category> categoryList = new ArrayList<>();
-        try(Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * from category");
+        String sql = "SELECT * from category";
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 categoryList.add(getCategoryFromResultSet(resultSet));
             }

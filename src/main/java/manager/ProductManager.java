@@ -15,7 +15,7 @@ public class ProductManager {
 
     public void add(Product product) {
         String sql = "INSERT INTO product(name,description,price,quantity,category_id) VALUES(?,?,?,?,?)";
-        try(PreparedStatement ps = connection.prepareStatement(String.format(sql), Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = connection.prepareStatement(String.format(sql), Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, product.getName());
             ps.setString(2, product.getDescription());
             ps.setInt(3, product.getPrice());
@@ -31,17 +31,19 @@ public class ProductManager {
             e.printStackTrace();
         }
     }
+
     public void deleteById(int productId) {
         String sql = "DELETE FROM product WHERE id = " + productId;
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     public Product getById(int id) {
         String sql = "SELECT * FROM product WHERE id = " + id;
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(String.format(sql));
             if (resultSet.next()) {
                 return getProductFromResultSet(resultSet);
@@ -51,39 +53,41 @@ public class ProductManager {
         }
         return null;
     }
+
     public void edit(Product product) {
-        String sql = "UPDATE product Set name = '%s',description = '%s',price = %d,quantity = %d WHERE id = %d";
-      //  String sql = "UPDATE product SET name = ?,description = ?,prise = ?,quantity = ?,category_id Where id = ?";
-           // try(PreparedStatement ps = connection.prepareStatement(sql)) {
-        try(Statement statement = connection.createStatement()) {
-            statement.executeUpdate(String.format(sql,product.getName(), product.getDescription(), product.getPrice(),product.getQuantity(),product.getId()));
-       // ps.setString(1, product.getName());
-        //ps.setString(2, product.getDescription());
-        //ps.setInt(3, product.getPrice());
-        //ps.setInt(4, product.getQuantity());
-       // ps.setInt(5, product.getCategory().getId());
-      //  ps.executeUpdate();
-        } catch (SQLException e) {
+        String sql = "UPDATE product SET name = ?,description = ?,price = ?,quantity = ? Where id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, product.getName());
+            ps.setString(2, product.getDescription());
+            ps.setInt(3, product.getPrice());
+            ps.setInt(4, product.getQuantity());
+            ps.setInt(5, product.getId());
+            ps.executeUpdate();
+            }
+         catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     public void printSum() {
         String sql = "SELECT SUM(id) FROM product";
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(sql);
             if (resultSet.next()) {
                 int sumProduct = resultSet.getInt(1);
                 System.out.println(sumProduct);
             }
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
     }
+
     public void printMaxPrice() {
         String sql = "SELECT MAX(Price) AS SmallestPrice  FROM product;";
-        try(Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(sql);
-            if(resultSet.next()) {
+            if (resultSet.next()) {
                 int maxPrice = resultSet.getInt("SmallestPrice");
                 System.out.println(maxPrice);
             }
@@ -91,9 +95,10 @@ public class ProductManager {
             e.printStackTrace();
         }
     }
+
     public void printMinPrice() {
         String sql = "SELECT MIN(Price) AS SmallestPrice FROM product;";
-        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet resultSet = ps.executeQuery();
             if (resultSet.next()) {
                 int minPrice = resultSet.getInt("SmallestPrice");
@@ -103,9 +108,10 @@ public class ProductManager {
             e.printStackTrace();
         }
     }
+
     public void printAvgPrice() {
         String sql = "SELECT AVG(Price) FROM product;";
-        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet resultSet = ps.executeQuery();
             if (resultSet.next()) {
                 int avgPrice = resultSet.getInt(1);
@@ -117,9 +123,10 @@ public class ProductManager {
     }
 
     public List<Product> getAll() {
+        String sql = "SELECT * FROM product";
         List<Product> products = new ArrayList<>();
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM product");
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 products.add(getProductFromResultSet(resultSet));
             }
