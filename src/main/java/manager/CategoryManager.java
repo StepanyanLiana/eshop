@@ -25,7 +25,7 @@ public class CategoryManager {
     }
     public  void editCategory(Category category) {
         String sql = "UPDATE category SET name = ? WHERE id = ?";
-        try(PreparedStatement ps = connection.prepareCall(sql)) {
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, category.getName());
             ps.setInt(2,category.getId());
           ps.executeUpdate();
